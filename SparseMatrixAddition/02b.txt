@@ -1,0 +1,5 @@
+#Test Case 2
+#Matrix B, no zero entries
+#i j value
+10 12 5
+20 25 9

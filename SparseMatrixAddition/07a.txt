@@ -1,0 +1,6 @@
+#Test Case 7
+#Matrix A, no zero entries
+#i j value
+2 1 3
+12 12 24
+9 9 14

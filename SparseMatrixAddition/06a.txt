@@ -1,0 +1,7 @@
+#Test Case 6
+#This test case has varying number of comment lines
+#Matrix A, no zero entries
+#i j value
+2 2 2
+1 1 1
+3 3 3

@@ -1,0 +1,6 @@
+#Test Case 10
+#Matrix B, no zero entries
+#i j value
+2 2 7
+7 14 9
+1000 1000 10
