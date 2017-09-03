@@ -57,7 +57,8 @@ int main(int argc, char * argv[]) {
   std::string inputB = am.get("B");
   std::string storage = am.get("Storage");
   std::string recursive = am.get("Recursive");
-
+  std::string operation = am.get("Operation");
+  
   if(storage == "LinkedList"){
     UserLinkedList matrixA;
     UserLinkedList matrixB;
@@ -79,6 +80,26 @@ int main(int argc, char * argv[]) {
     listC = recursive == "Y" ? listA.recursiveAddition(listB) : listA + listB;
     listC.sortList();
     listC.printList();
+  }
+  
+  if(operation == "Multiply") {
+    /**
+     For multiplication, array list will be used for storage.
+     This permits more flexibility in terms of what sorting method is selected.
+     */
+    UserArrayList listA;
+    UserArrayList listB;
+    
+    readInput_arrayList(inputA, listA);
+    readInput_arrayList(inputB, listB);
+    
+    if(!listA.isSorted())
+      std::cout << "Now sorting list A\n";
+    if(!listB.isSorted())
+      std::cout << "Now sorting list B\n";
+    
+    
+    
   }
   return 0;
 }

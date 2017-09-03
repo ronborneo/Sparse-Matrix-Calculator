@@ -66,6 +66,14 @@ public:
   int getSize() const { return size; }
   int getCapacity() const { return capacity; }
   
+  bool isSorted() const {
+    for(int i = 0; i < size - 1; i++) {
+      if(arrayList[i] > arrayList[i + 1])
+        return false;
+    }
+    return true;
+  }
+  
   void printList(){
     for(int i = 0; i < size; i++){
       arrayList[i].printNode();

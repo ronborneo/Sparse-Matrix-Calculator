@@ -26,6 +26,10 @@ struct Node {
   bool operator < (const Node& otherEntry){
     return i < otherEntry.i || (i == otherEntry.i && j < otherEntry.j);
   }
+  
+  bool operator > (const Node& otherEntry){
+    return !(i < otherEntry.i || (i == otherEntry.i && j < otherEntry.j));
+  }
 };
 
 #endif /* Node_h */
