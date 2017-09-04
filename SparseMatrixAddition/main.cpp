@@ -52,12 +52,10 @@ void readInput_arrayList(std::string fileName, UserArrayList &list){
 void sortTheTwoLists(UserArrayList &listA, UserArrayList &listB){
   if(!listA.isSorted()) {
     listA.sortList('i');
-    // listA.printList();
   }
   
   if(!listB.isSorted()) {
     listB.sortList('i');
-    // listB.printList();
   }
 }
 

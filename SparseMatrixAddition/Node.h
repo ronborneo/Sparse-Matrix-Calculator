@@ -20,6 +20,21 @@ struct Node {
     this->value = v;
     used = false;
   }
+  Node(const Node &otherNode) {
+    i = otherNode.i;
+    j = otherNode.j;
+    value = otherNode.value;
+    used = false;
+  }
+  
+  Node& operator=(const Node &otherNode) {
+    i = otherNode.i;
+    j = otherNode.j;
+    value = otherNode.value;
+    used = otherNode.used;
+    return *this;
+  }
+  
   void printNode() {
     std::cout << i << ' ' << j << ' ' << std::fixed << std::setprecision(2) << value << '\n';
   }

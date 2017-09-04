@@ -19,6 +19,9 @@ UserArrayList& UserArrayList::operator=(const UserArrayList& otherList){
   return *this;
 }
 
+/**
+ *  Uses a nested for-loop to match up every i, j value with corresponding i, j value in the other list.
+ */
 UserArrayList UserArrayList::operator+(const UserArrayList& otherList){
   if(!checkIfValidMatrixAddition(otherList)){
     exit(0);
@@ -60,6 +63,9 @@ const Node& UserArrayList::operator[](int index) const {
   return arrayList[index];
 }
 
+/**
+ *  Used during matrix addition to insert remaining unused values.
+ */
 void UserArrayList::insertRemainingEntries(UserArrayList& resultList, const UserArrayList& otherList, bool* usedValues){
   for(int i = 0; i < otherList.size; i++){
     if(!usedValues[i] && (otherList[i].value != 0 || checkIfMax(otherList[i]))){
@@ -75,27 +81,15 @@ void UserArrayList::updateMax(const Node newEntry) {
   }
 }
 
+/**
+ *  Standard pushBack function to append to the list.
+ *  Will double in size if the resulting 'size' will equal to the capacity.
+ */
 void UserArrayList::pushBack(const Node newEntry) {
-  if(size + 1 == capacity){
-    Node* newList = new Node[capacity * 2];
-    copyOver(newList);
-  }
-  updateMax(newEntry);
-  if(!checkIfMax(newEntry) && newEntry.value == 0)
-    return;
-  arrayList[size++] = newEntry;
-}
-
-void UserArrayList::pushBackSorted(const Node newEntry) {
-  
   /**
-   *
-   *  Implement so there is no need to keep calling merge sort after every insert
-   *  - Reduces over head and increases performance
-   *
+   *  Standard maintenance for adding new entries.
+   *  Check max capacity, updating max i/j values, and checking for zero entries.
    */
-  
-  /*
   if(size + 1 == capacity){
     Node* newList = new Node[capacity * 2];
     copyOver(newList);
@@ -104,9 +98,11 @@ void UserArrayList::pushBackSorted(const Node newEntry) {
   if(!checkIfMax(newEntry) && newEntry.value == 0)
     return;
   arrayList[size++] = newEntry;
-   */
 }
 
+/**
+ *  Utility function to copy over the array once it's capacity is reached.
+ */
 void UserArrayList::copyOver(Node* newList){
   for(int i = 0; i < capacity; i++){
     newList[i] = arrayList[i];
@@ -116,6 +112,10 @@ void UserArrayList::copyOver(Node* newList){
   arrayList = newList;
 }
 
+/**
+ *  Standard merge sort. Continue to divide the list in half until there are less than two elements in the list.
+ *  Once base base is reached, call the merge routine. Ordering depends on the 'orderBy' char.
+ */
 void UserArrayList::myMergeSort(Node* list, const int size, const char orderBy){
   if(size < 2){
     return;
@@ -169,6 +169,11 @@ void UserArrayList::sortList(const char orderBy = 'i'){
   myMergeSort(arrayList, size, orderBy);
 }
 
+/*
+ *  Same idea with non-recursing addition.
+ *  recAdditionHelper - Acts as outer loop.
+ *  recAdditionHelper2 - Acts as inner loop.
+ */
 UserArrayList UserArrayList::recursiveAddition(const UserArrayList& otherList){
   if(!checkIfValidMatrixAddition(otherList)){
     exit(0);
@@ -215,6 +220,10 @@ bool UserArrayList::isSorted() const {
   return true;
 }
 
+/**
+ *  Iterate through all entries in list A. Match all j values with ALL possible matching i values in the other list.
+ *  Once found, find the product and insert into the result list with the corresponding i value in list A and j value in list B.
+ */
 UserArrayList UserArrayList::operator*(const UserArrayList& otherList) {
   if(!checkIfValidMatrixMultiplication(otherList)){
     std::cout << "Invalid Matrix Dimensions\n";
@@ -234,14 +243,10 @@ UserArrayList UserArrayList::operator*(const UserArrayList& otherList) {
         }
         Node newNode(arrayList[m].i, otherList[indexForListB].j, product);
         int indexForInsertion = resultList.binarySearchForNode(0, resultList.getSize(), newNode);
-        if(indexForInsertion != -1) {
-          // Aggregate Sum
+        if(indexForInsertion != -1) { // Node not found in result list => Aggregate Sum
           resultList[indexForInsertion].value += product;
         } else {
-          // Add new entry into array, keep array sorted.
-          // Implement pushBackSorted.
-          resultList.pushBack(newNode);
-          resultList.sortList();
+          resultList.pushBackSorted(newNode);
         }
         indexForListB++;
       } while(indexForListB < otherList.getSize() && otherList[indexForListB].i == otherList[indexForListB - 1].i);
@@ -264,8 +269,7 @@ int UserArrayList::binarySearchForNode(int startIndex, int endIndex, const Node&
       return binarySearchForNode(mid + 1, endIndex, nodeToSearchFor);
     }
   }
-  // Reached when node is not found
-  return -1;
+  return -1; // Reached when node is not found
 }
 
 /**
@@ -274,9 +278,11 @@ int UserArrayList::binarySearchForNode(int startIndex, int endIndex, const Node&
 int UserArrayList::binarySearchForIndex(int startIndex, int endIndex, int valueToSearchFor, const char iOrJ) const {
   if(endIndex >= startIndex) {
     int mid = startIndex + (endIndex - startIndex) / 2;
+    /* 
+     * Depending on whether you are searching
+     */
     if(iOrJ == 'j') {
       if(arrayList[mid].j == valueToSearchFor) {
-        // Shift to first occurence of jValue
         mid = findFirstOccurenceOfJVal(valueToSearchFor, mid);
         return mid;
       } else if(arrayList[mid].j > valueToSearchFor) {
@@ -286,7 +292,6 @@ int UserArrayList::binarySearchForIndex(int startIndex, int endIndex, int valueT
       }
     } else {
       if(arrayList[mid].i == valueToSearchFor) {
-        // Shift to first occurence of iValue
         mid = findFirstOccurenceOfIVal(valueToSearchFor, mid);
         return mid;
       } else if(arrayList[mid].i > valueToSearchFor) {
@@ -319,6 +324,60 @@ int UserArrayList::findFirstOccurenceOfIVal(const int iValue, int index) const {
   }
   return index;
 }
+
+/**
+ *  Maintains the list as sorted as nodes are inserted.
+ */
+void UserArrayList::pushBackSorted(const Node newEntry) {
+  /**
+   *  Standard maintenance for adding new entries.
+   *  Check max capacity, updating max i/j values, and checking for zero entries.
+   */
+  if(size + 1 == capacity){
+    Node* newList = new Node[capacity * 2];
+    copyOver(newList);
+  }
+  updateMax(newEntry);
+  if(!checkIfMax(newEntry) && newEntry.value == 0)
+    return;
+  
+  if(size == 0) {
+    arrayList[size++] = newEntry;
+  } else {
+    /**
+     *  Find proper index for insertion.
+     *  2 CASES: 1. Index is at the end of the list, simply insert.
+     *            2.  Index is in the middle of the list, must perform shift operation.
+     */
+    Node tempNode(newEntry);
+    int indexForInsertion = 0;
+    for(; indexForInsertion < size; indexForInsertion++) {
+      if(tempNode < arrayList[indexForInsertion]) {
+        break;
+      }
+    }
+    if(indexForInsertion < size) {
+      for(int i = size; i > indexForInsertion; i--) {
+        arrayList[i] = arrayList[i - 1];
+      }
+    }
+    arrayList[indexForInsertion] = newEntry;
+    size++;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
