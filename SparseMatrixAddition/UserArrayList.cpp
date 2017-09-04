@@ -86,6 +86,27 @@ void UserArrayList::pushBack(const Node newEntry) {
   arrayList[size++] = newEntry;
 }
 
+void UserArrayList::pushBackSorted(const Node newEntry) {
+  
+  /**
+   *
+   *  Implement so there is no need to keep calling merge sort after every insert
+   *  - Reduces over head and increases performance
+   *
+   */
+  
+  /*
+  if(size + 1 == capacity){
+    Node* newList = new Node[capacity * 2];
+    copyOver(newList);
+  }
+  updateMax(newEntry);
+  if(!checkIfMax(newEntry) && newEntry.value == 0)
+    return;
+  arrayList[size++] = newEntry;
+   */
+}
+
 void UserArrayList::copyOver(Node* newList){
   for(int i = 0; i < capacity; i++){
     newList[i] = arrayList[i];
@@ -95,7 +116,7 @@ void UserArrayList::copyOver(Node* newList){
   arrayList = newList;
 }
 
-void UserArrayList::myMergeSort(Node* list, const int size){
+void UserArrayList::myMergeSort(Node* list, const int size, const char orderBy){
   if(size < 2){
     return;
   }
@@ -109,22 +130,33 @@ void UserArrayList::myMergeSort(Node* list, const int size){
     int currentIndex = i + mid;
     rightSide[i] = list[currentIndex];
   }
-  myMergeSort(leftSide, mid);
-  myMergeSort(rightSide, size - mid);
-  mergeRoutine(list, leftSide, mid, rightSide, size - mid);
+  myMergeSort(leftSide, mid, orderBy);
+  myMergeSort(rightSide, size - mid, orderBy);
+  mergeRoutine(list, leftSide, mid, rightSide, size - mid, orderBy);
   delete [] leftSide;
   delete [] rightSide;
 }
 
-void UserArrayList::mergeRoutine(Node* resultList, Node* leftSide, const int leftSideCount, Node* rightSide, const int rightSideCount){
+void UserArrayList::mergeRoutine(Node* resultList, Node* leftSide, const int leftSideCount, Node* rightSide, const int rightSideCount, const char orderBy){
   int leftSideIndex = 0, rightSideIndex = 0, resultIndex = 0;
-  while(leftSideIndex < leftSideCount && rightSideIndex < rightSideCount){
-    if(leftSide[leftSideIndex] < rightSide[rightSideIndex]){
-      resultList[resultIndex++] = leftSide[leftSideIndex++];
-    } else {
-      resultList[resultIndex++] = rightSide[rightSideIndex++];
+  if(orderBy == 'j'){
+    while(leftSideIndex < leftSideCount && rightSideIndex < rightSideCount){
+      if(leftSide[leftSideIndex].isLessThanByJ(rightSide[rightSideIndex])){
+        resultList[resultIndex++] = leftSide[leftSideIndex++];
+      } else {
+        resultList[resultIndex++] = rightSide[rightSideIndex++];
+      }
+    }
+  } else {
+    while(leftSideIndex < leftSideCount && rightSideIndex < rightSideCount){
+      if(leftSide[leftSideIndex] < rightSide[rightSideIndex]){
+        resultList[resultIndex++] = leftSide[leftSideIndex++];
+      } else {
+        resultList[resultIndex++] = rightSide[rightSideIndex++];
+      }
     }
   }
+  
   while(leftSideIndex < leftSideCount){
     resultList[resultIndex++] = leftSide[leftSideIndex++];
   }
@@ -133,8 +165,8 @@ void UserArrayList::mergeRoutine(Node* resultList, Node* leftSide, const int lef
   }
 }
 
-void UserArrayList::sortList(){
-  myMergeSort(arrayList, size);
+void UserArrayList::sortList(const char orderBy = 'i'){
+  myMergeSort(arrayList, size, orderBy);
 }
 
 UserArrayList UserArrayList::recursiveAddition(const UserArrayList& otherList){
@@ -175,13 +207,118 @@ void UserArrayList::recAdditionHelper2(UserArrayList& resultMatrix, const UserAr
   recAdditionHelper2(resultMatrix, otherList, index1, index2 + 1, usedValues);
 }
 
+bool UserArrayList::isSorted() const {
+  for(int i = 0; i < size - 1; i++) {
+    if(arrayList[i] > arrayList[i + 1])
+      return false;
+  }
+  return true;
+}
 
+UserArrayList UserArrayList::operator*(const UserArrayList& otherList) {
+  if(!checkIfValidMatrixMultiplication(otherList)){
+    std::cout << "Invalid Matrix Dimensions\n";
+    exit(0);
+  }
+  
+  UserArrayList resultList;
+  
+  for(int m = 0; m < size; m++) {
+    int indexForListB = otherList.binarySearchForIndex(0, otherList.getSize(), arrayList[m].j, 'i');
+    if(indexForListB != -1) {
+      do {
+        int product = arrayList[m].value * otherList[indexForListB].value;
+        if(product == 0 && !(arrayList[m].i == maxI && otherList[indexForListB].j == otherList.getMaxJ())) {
+          indexForListB++;
+          continue;
+        }
+        Node newNode(arrayList[m].i, otherList[indexForListB].j, product);
+        int indexForInsertion = resultList.binarySearchForNode(0, resultList.getSize(), newNode);
+        if(indexForInsertion != -1) {
+          // Aggregate Sum
+          resultList[indexForInsertion].value += product;
+        } else {
+          // Add new entry into array, keep array sorted.
+          // Implement pushBackSorted.
+          resultList.pushBack(newNode);
+          resultList.sortList();
+        }
+        indexForListB++;
+      } while(indexForListB < otherList.getSize() && otherList[indexForListB].i == otherList[indexForListB - 1].i);
+    }
+  }
+  return resultList;
+}
 
+/*
+ * To be used when inserting into the resultList
+ */
+int UserArrayList::binarySearchForNode(int startIndex, int endIndex, const Node& nodeToSearchFor) const {
+  if(endIndex >= startIndex) {
+    int mid = startIndex + (endIndex - startIndex) / 2;
+    if(arrayList[mid] == nodeToSearchFor) {
+      return mid;
+    } else if(arrayList[mid] > nodeToSearchFor) {
+      return binarySearchForNode(startIndex, mid - 1, nodeToSearchFor);
+    } else {
+      return binarySearchForNode(mid + 1, endIndex, nodeToSearchFor);
+    }
+  }
+  // Reached when node is not found
+  return -1;
+}
 
+/**
+ * Standard binary search to return index of node with a matching j value.
+ */
+int UserArrayList::binarySearchForIndex(int startIndex, int endIndex, int valueToSearchFor, const char iOrJ) const {
+  if(endIndex >= startIndex) {
+    int mid = startIndex + (endIndex - startIndex) / 2;
+    if(iOrJ == 'j') {
+      if(arrayList[mid].j == valueToSearchFor) {
+        // Shift to first occurence of jValue
+        mid = findFirstOccurenceOfJVal(valueToSearchFor, mid);
+        return mid;
+      } else if(arrayList[mid].j > valueToSearchFor) {
+        return binarySearchForIndex(startIndex, mid - 1, valueToSearchFor, iOrJ);
+      } else {
+        return binarySearchForIndex(mid + 1, endIndex, valueToSearchFor, iOrJ);
+      }
+    } else {
+      if(arrayList[mid].i == valueToSearchFor) {
+        // Shift to first occurence of iValue
+        mid = findFirstOccurenceOfIVal(valueToSearchFor, mid);
+        return mid;
+      } else if(arrayList[mid].i > valueToSearchFor) {
+        return binarySearchForIndex(startIndex, mid - 1, valueToSearchFor, iOrJ);
+      } else {
+        return binarySearchForIndex(mid + 1, endIndex, valueToSearchFor, iOrJ);
+      }
+    }
+  }
+  // Reached when element is not found
+  return -1;
+}
 
+/**
+ * Shift the index down to the lowest possible index with a match j value.
+ */
+int UserArrayList::findFirstOccurenceOfJVal(const int jValue, int index) const {
+  while(index > 0 && arrayList[index - 1].j == jValue){
+    index--;
+  }
+  return index;
+}
 
-
-
+/**
+ * Shift the index down to the lowest possible index with a match i value.
+ */
+int UserArrayList::findFirstOccurenceOfIVal(const int iValue, int index) const {
+  while(index > 0 && arrayList[index - 1].i == iValue){
+    index--;
+  }
+  return index;
+}
 
 
 

@@ -1,6 +1,6 @@
 
 filename="main"
-casecount=9
+casecount=10
 # maximum time allowed for each run
 timeout="10s"
 #       0   1  2  3  4  5  6  7  8  9                                                                              
@@ -32,7 +32,7 @@ for casenum in `seq 1 1 $casecount`; do
 done
 grade=$baseGrade
 for casenum in `seq 1 1 $casecount`; do
-    ./$filename Recursive=Y  Storage=NA A=0$casenum\a.txt B=0$casenum\b.txt 1>\0$casenum.stdout 2>\0$casenum.stderr
+    ./$filename Operation=Multiply Recursive=Y  Storage=NA A=0$casenum\a.txt B=0$casenum\b.txt 1>\0$casenum.stdout 2>\0$casenum.stderr
     if [ $? -ne 0 ]; then
         echo -e "        ${red}Program killed due to timeout ($timeout).$nocolor"
         echo "Test case $casenum timed out ($timeout)." >> TIMEOUT

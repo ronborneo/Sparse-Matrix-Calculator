@@ -45,6 +45,22 @@ void readInput_arrayList(std::string fileName, UserArrayList &list){
   }
 }
 
+/**
+ In matrix multiplication, you should always sort.
+ Allows in simplicity of the calculation.
+ */
+void sortTheTwoLists(UserArrayList &listA, UserArrayList &listB){
+  if(!listA.isSorted()) {
+    listA.sortList('i');
+    // listA.printList();
+  }
+  
+  if(!listB.isSorted()) {
+    listB.sortList('i');
+    // listB.printList();
+  }
+}
+
 int main(int argc, char * argv[]) {
   
   if(argc < 2){
@@ -59,47 +75,54 @@ int main(int argc, char * argv[]) {
   std::string recursive = am.get("Recursive");
   std::string operation = am.get("Operation");
   
-  if(storage == "LinkedList"){
-    UserLinkedList matrixA;
-    UserLinkedList matrixB;
-    
-    readInput_linkedList(inputA, matrixA);
-    readInput_linkedList(inputB, matrixB);
-    
-    UserLinkedList matrixC;
-    matrixC = recursive == "Y" ? matrixA.recursiveAddition(matrixB) : matrixA + matrixB;
-    matrixC.printList();
-  } else {
-    UserArrayList listA;
-    UserArrayList listB;
-    
-    readInput_arrayList(inputA, listA);
-    readInput_arrayList(inputB, listB);
-    
-    UserArrayList listC;
-    listC = recursive == "Y" ? listA.recursiveAddition(listB) : listA + listB;
-    listC.sortList();
-    listC.printList();
-  }
-  
   if(operation == "Multiply") {
     /**
+     Sparse Matrix Multiplication
+     
      For multiplication, array list will be used for storage.
      This permits more flexibility in terms of what sorting method is selected.
      */
     UserArrayList listA;
     UserArrayList listB;
-    
+
     readInput_arrayList(inputA, listA);
     readInput_arrayList(inputB, listB);
     
-    if(!listA.isSorted())
-      std::cout << "Now sorting list A\n";
-    if(!listB.isSorted())
-      std::cout << "Now sorting list B\n";
+    sortTheTwoLists(listA, listB);
     
-    
-    
+    UserArrayList listC;
+
+    listC = listA * listB;
+    listC.printList();
+  } else {
+    /**
+     Sparse Matrix Addition
+     
+     Storage: LinkedList/ArrayList
+     Recursive: Y/N
+     */
+    if(storage == "LinkedList"){
+      UserLinkedList matrixA;
+      UserLinkedList matrixB;
+      
+      readInput_linkedList(inputA, matrixA);
+      readInput_linkedList(inputB, matrixB);
+      
+      UserLinkedList matrixC;
+      matrixC = recursive == "Y" ? matrixA.recursiveAddition(matrixB) : matrixA + matrixB;
+      matrixC.printList();
+    } else {
+      UserArrayList listA;
+      UserArrayList listB;
+      
+      readInput_arrayList(inputA, listA);
+      readInput_arrayList(inputB, listB);
+      
+      UserArrayList listC;
+      listC = recursive == "Y" ? listA.recursiveAddition(listB) : listA + listB;
+      listC.sortList('i');
+      listC.printList();
+    }
   }
   return 0;
 }

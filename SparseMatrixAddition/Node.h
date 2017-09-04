@@ -28,7 +28,19 @@ struct Node {
   }
   
   bool operator > (const Node& otherEntry){
-    return !(i < otherEntry.i || (i == otherEntry.i && j < otherEntry.j));
+    return !(*this < otherEntry);
+  }
+  
+  bool operator == (const Node& otherEntry){
+    return i == otherEntry.i && j == otherEntry.j;
+  }
+  
+  bool isLessThanByJ(const Node& otherEntry) {
+    return j < otherEntry.j || (j == otherEntry.j && i < otherEntry.i);
+  }
+  
+  bool isGreaterThanByJ(const Node& otherEntry) {
+    return !(this->isLessThanByJ(otherEntry));
   }
 };
 
