@@ -1,0 +1,5 @@
+#Test Case 6
+#Matrix B, no zero entries
+1 1 1
+2 2 2
+3 3 3

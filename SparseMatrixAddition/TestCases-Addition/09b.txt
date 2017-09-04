@@ -1,0 +1,5 @@
+#Test case 9
+#Matrix B
+#i j value
+3 4 2
+10 17 0

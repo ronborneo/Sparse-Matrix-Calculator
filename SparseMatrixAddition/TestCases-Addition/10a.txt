@@ -1,0 +1,7 @@
+#Test Case 10
+#Matrix With large size
+#Matrix A, no zero entries
+#i j value
+1 1 1
+9 4 4
+1000 1000 9
